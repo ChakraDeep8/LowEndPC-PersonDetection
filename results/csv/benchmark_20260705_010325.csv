@@ -1,0 +1,2 @@
+Timestamp,Engine,Model,Input,CPU,RAM(GB),Model Load(ms),Image Read(ms),Preprocess(ms),Inference(ms),Postprocess(ms),Draw(ms),Save(ms),Total(ms),FPS,CPU Usage(%),RAM Usage(%),Process Memory(MB),Threads,Persons
+2026-07-05T01:03:51.350+05:30,PyTorch,yolo11n.pt,130.124,images/person.jpg,Intel(R) Core(TM) i3-4150 CPU @ 3.50GHz,15.02,0,0,529.019,0,0,0,529.019,1.89,13.59,30.67,671.7,11,3

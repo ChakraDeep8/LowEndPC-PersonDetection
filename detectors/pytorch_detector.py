@@ -25,7 +25,7 @@ class PyTorchDetector(BaseDetector):
 
         self.engine = "PyTorch"
         self.model_name = config.MODEL_NAME
-
+        self.model_load_ms = 0.0
         self.load_model()
 
     # --------------------------------------------------
@@ -34,11 +34,17 @@ class PyTorchDetector(BaseDetector):
 
     def load_model(self):
 
+        from benchmark.timer import Timer
+
         print("Loading model...")
 
-        self.model = YOLO(str(config.MODEL_PATH))
+        with Timer("Model Loading") as timer:
 
-        print("Model Loaded Successfully.")
+            self.model = YOLO(str(config.MODEL_PATH))
+
+        self.model_load_ms = timer.elapsed_ms
+
+        print(f"Model Loaded Successfully ({self.model_load_ms:.2f} ms)")
 
         return self.model
 

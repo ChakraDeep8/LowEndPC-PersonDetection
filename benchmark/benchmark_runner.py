@@ -123,6 +123,8 @@ class BenchmarkRunner:
 
             "model": self.detector.model_name,
 
+            "model_load_ms": self.detector.model_load_ms,
+
             "cpu_name": self.system["cpu"],
 
             "ram_gb": self.system["ram_gb"],
@@ -163,11 +165,11 @@ class BenchmarkRunner:
 
     report["engine"],                 # Engine
     report["model"],                  # Model
+    round(report["model_load_ms"], 3),# Model Load
     report["image"],                  # Input
     report["cpu_name"],               # CPU
     report["ram_gb"],                 # RAM
 
-    0,                                # Model Load
     0,                                # Image Read
     0,                                # Preprocess
 
@@ -206,6 +208,8 @@ class BenchmarkRunner:
         print(f"Engine            : {report['engine']}")
 
         print(f"Model             : {report['model']}")
+
+        print(f"Model Load Time   : {report['model_load_ms']:.2f} ms")
 
         print(f"Average Latency   : {report['average_ms']:.2f} ms")
 
