@@ -46,6 +46,31 @@ DEVICE = "cpu"
 # Benchmark
 # ==========================
 
-WARMUP = 3
+WARMUP_RUNS = 3
+BENCHMARK_RUNS = 30
 
-RUNS = 30
+# ==========================
+# Detection
+# ==========================
+
+CONFIDENCE = 0.25
+IOU = 0.45
+IMAGE_SIZE = 640
+DEVICE = "cpu"
+
+PERSON_CLASS = 0
+
+# ==========================
+# Drawing
+# ==========================
+
+BOX_COLOR = (0, 255, 0)
+BOX_THICKNESS = 2
+FONT_SCALE = 0.6
+
+# ==========================
+# Save
+# ==========================
+
+SAVE_OUTPUT_IMAGE = True
+SAVE_CSV = True

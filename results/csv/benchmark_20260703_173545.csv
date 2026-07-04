@@ -1,2 +1,0 @@
-Timestamp,Engine,Model,Input,CPU,RAM(GB),Load(ms),Preprocess(ms),Inference(ms),Postprocess(ms),Draw(ms),Total(ms),FPS,CPU Usage(%),RAM Usage(%),Process Memory(MB),Threads,Persons
-2026-07-03 17:35:45.894052,PyTorch,YOLO11n,person.jpg,Intel i3-4150,15.02,120,15,48,8,6,197,5.08,31,28,215,4,3

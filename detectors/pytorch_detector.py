@@ -13,29 +13,131 @@ from pathlib import Path
 import cv2
 from ultralytics import YOLO
 
-from benchmark.timer import Timer
-from benchmark.profiler import Profiler
-from benchmark.logger import BenchmarkLogger
-from benchmark.system_info import SystemInfo
+from detectors.base_detector import BaseDetector
 import config
 
 
-class PyTorchDetector:
+class PyTorchDetector(BaseDetector):
 
     def __init__(self):
 
-        self.logger = BenchmarkLogger()
-        self.profiler = Profiler()
+        super().__init__()
+
+        self.engine = "PyTorch"
+        self.model_name = config.MODEL_NAME
+
+        self.load_model()
+
+    # --------------------------------------------------
+    # BaseDetector Implementation
+    # --------------------------------------------------
+
+    def load_model(self):
 
         print("Loading model...")
 
-        with Timer("Model Loading") as timer:
-            self.model = YOLO(config.MODEL_PATH)
+        self.model = YOLO(str(config.MODEL_PATH))
 
-        print(timer)
+        print("Model Loaded Successfully.")
 
-        print("\nSystem Information")
-        SystemInfo.print()
+        return self.model
+
+    # --------------------------------------------------
+
+    def preprocess(self, image):
+
+        # Ultralytics handles preprocessing internally.
+        return image
+
+    # --------------------------------------------------
+
+    def inference(self, image):
+
+        return self.model.predict(
+            source=image,
+            imgsz=config.IMAGE_SIZE,
+            conf=config.CONFIDENCE,
+            iou=config.IOU,
+            device=config.DEVICE,
+            verbose=False
+        )
+
+    # --------------------------------------------------
+
+    def postprocess(self, predictions):
+
+        result = predictions[0]
+
+        detections = []
+
+        for box in result.boxes:
+
+            class_id = int(box.cls)
+
+            if class_id != config.PERSON_CLASS:
+                continue
+
+            x1, y1, x2, y2 = map(float, box.xyxy[0])
+
+            detections.append({
+
+                "class_id": class_id,
+
+                "label": "person",
+
+                "confidence": float(box.conf),
+
+                "bbox": [x1, y1, x2, y2]
+
+            })
+
+        return result, detections
+
+    # --------------------------------------------------
+
+    def draw(self, image, detections):
+
+        for detection in detections:
+
+            x1, y1, x2, y2 = map(int, detection["bbox"])
+
+            cv2.rectangle(
+                image,
+                (x1, y1),
+                (x2, y2),
+                config.BOX_COLOR,
+                config.BOX_THICKNESS
+            )
+
+            cv2.putText(
+                image,
+                f"{detection['confidence']:.2f}",
+                (x1, y1 - 10),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                config.FONT_SCALE,
+                config.BOX_COLOR,
+                2
+            )
+
+        return image
+
+    # --------------------------------------------------
+
+    def save(self, image, output_path):
+
+        output_path = Path(output_path)
+
+        output_path.parent.mkdir(
+            parents=True,
+            exist_ok=True
+        )
+
+        cv2.imwrite(
+            str(output_path),
+            image
+        )
+
+    # --------------------------------------------------
 
     def detect(self, image_path):
 
@@ -46,33 +148,11 @@ class PyTorchDetector:
         if image is None:
             raise FileNotFoundError(image_path)
 
-        # --------------------------
-        # Inference
-        # --------------------------
+        image = self.preprocess(image)
 
-        with Timer("Inference") as infer_timer:
+        predictions = self.inference(image)
 
-            results = self.model.predict(
-                source=image,
-                imgsz=config.IMAGE_SIZE,
-                conf=config.CONFIDENCE,
-                iou=config.IOU,
-                device=config.DEVICE,
-                verbose=False
-            )
-
-        result = results[0]
-
-        persons = 0
-
-        for box in result.boxes:
-
-            cls = int(box.cls)
-
-            if cls != config.PERSON_CLASS:
-                continue
-
-            persons += 1
+        result, detections = self.postprocess(predictions)
 
         annotated = result.plot()
 
@@ -81,49 +161,33 @@ class PyTorchDetector:
             f"{image_path.stem}_result.jpg"
         )
 
-        output_path.parent.mkdir(parents=True, exist_ok=True)
+        self.save(
+            annotated,
+            output_path
+        )
 
-        cv2.imwrite(str(output_path), annotated)
+        return {
 
-        profile = self.profiler.snapshot()
+            "detections": detections,
 
-        fps = 1000 / infer_timer.elapsed_ms
+            "persons": len(detections),
 
-        info = SystemInfo.collect()
+            "output": output_path
 
-        self.logger.log([
-            "PyTorch",
-            config.MODEL_NAME,
-            image_path.name,
-            info["cpu"],
-            info["ram_gb"],
-            0,
-            0,
-            round(infer_timer.elapsed_ms, 3),
-            0,
-            0,
-            round(infer_timer.elapsed_ms, 3),
-            round(fps, 2),
-            profile["cpu_percent"],
-            profile["memory_percent"],
-            profile["memory_used_mb"],
-            profile["threads"],
-            persons
-        ])
-
-        print("\nDetection Complete")
-        print("-------------------------------")
-        print(f"Persons        : {persons}")
-        print(f"Inference Time : {infer_timer.elapsed_ms:.2f} ms")
-        print(f"FPS            : {fps:.2f}")
-        print(f"Output Image   : {output_path}")
-        print(f"CSV            : {self.logger.path()}")
+        }
 
 
 if __name__ == "__main__":
 
     detector = PyTorchDetector()
 
-    detector.detect(
+    result = detector.detect(
         "images/person.jpg"
     )
+
+    print("\nDetection Summary")
+    print("-----------------------------")
+
+    print(f"Persons : {result['persons']}")
+
+    print(f"Output  : {result['output']}")
