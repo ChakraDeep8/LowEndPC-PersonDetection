@@ -101,7 +101,8 @@ class BenchmarkRunner:
             with Timer(f"Run {i+1}") as timer:
 
                 final_result = self.detector.detect(image_path)
-
+                print(f"Image Read: {self.detector.image_read_ms:.3f} ms")
+                
             profile = self.profiler.snapshot()
 
             timings.append(timer.elapsed_ms)
@@ -124,6 +125,8 @@ class BenchmarkRunner:
             "model": self.detector.model_name,
 
             "model_load_ms": self.detector.model_load_ms,
+
+            "image_read_ms": self.detector.image_read_ms,
 
             "cpu_name": self.system["cpu"],
 
@@ -163,37 +166,46 @@ class BenchmarkRunner:
 
         self.logger.log([
 
-    report["engine"],                 # Engine
-    report["model"],                  # Model
-    round(report["model_load_ms"], 3),# Model Load
-    report["image"],                  # Input
-    report["cpu_name"],               # CPU
-    report["ram_gb"],                 # RAM
+        # -----------------------------
+        # Basic Information
+        # -----------------------------
 
-    0,                                # Image Read
-    0,                                # Preprocess
+        report["engine"],                 # Engine
+        report["model"],                  # Model
+        report["image"],                  # Input
+        report["cpu_name"],               # CPU
+        report["ram_gb"],                 # RAM
 
-    round(report["average_ms"], 3),   # Inference
+        # -----------------------------
+        # Timings
+        # -----------------------------
 
-    0,                                # Postprocess
-    0,                                # Draw
-    0,                                # Save
+        round(report["model_load_ms"], 3),    # Model Load
+        round(report["image_read_ms"], 3),    # Image Read
+        0,                                    # Preprocess
+        round(report["average_ms"], 3),       # Inference
+        0,                                    # Postprocess
+        0,                                    # Draw
+        0,                                    # Save
+        round(report["average_ms"], 3),       # Total
 
-    round(report["average_ms"], 3),   # Total
+        # -----------------------------
+        # Performance
+        # -----------------------------
 
-    round(report["fps"], 2),
+        round(report["fps"], 2),
+        round(report["cpu_percent"], 2),
+        round(report["ram_percent"], 2),
+        round(report["process_memory"], 2),
 
-    round(report["cpu_percent"], 2),
+        # -----------------------------
+        # Detection
+        # -----------------------------
 
-    round(report["ram_percent"], 2),
+        self.profiler.process.num_threads(),
+        report["persons"]
 
-    round(report["process_memory"], 2),
-
-    self.profiler.process.num_threads(),
-
-    report["persons"]
-
-])
+        ])
 
     def print_report(self, report):
 
@@ -210,6 +222,8 @@ class BenchmarkRunner:
         print(f"Model             : {report['model']}")
 
         print(f"Model Load Time   : {report['model_load_ms']:.2f} ms")
+
+        print(f"Image Read Time   : {report['image_read_ms']:.2f} ms")
 
         print(f"Average Latency   : {report['average_ms']:.2f} ms")
 

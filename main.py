@@ -25,8 +25,10 @@ BenchmarkRunner
                 └── save()
 """
 
-from detectors.pytorch_detector import PyTorchDetector
 from benchmark.benchmark_runner import BenchmarkRunner
+from detectors.pytorch_detector import PyTorchDetector
+
+import config
 
 
 def main():
@@ -35,13 +37,12 @@ def main():
 
     runner = BenchmarkRunner(detector)
 
-    runner.warmup("images/person.jpg")
+    runner.warmup(config.INPUT_IMAGE)
 
-    report = runner.benchmark("images/person.jpg")
+    report = runner.benchmark(config.INPUT_IMAGE)
 
     runner.print_report(report)
 
 
 if __name__ == "__main__":
-
     main()

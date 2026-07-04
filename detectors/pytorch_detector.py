@@ -13,6 +13,7 @@ from pathlib import Path
 import cv2
 from ultralytics import YOLO
 
+from benchmark.timer import Timer
 from detectors.base_detector import BaseDetector
 import config
 
@@ -26,6 +27,7 @@ class PyTorchDetector(BaseDetector):
         self.engine = "PyTorch"
         self.model_name = config.MODEL_NAME
         self.model_load_ms = 0.0
+        self.image_read_ms = 0.0
         self.load_model()
 
     # --------------------------------------------------
@@ -149,7 +151,11 @@ class PyTorchDetector(BaseDetector):
 
         image_path = Path(image_path)
 
-        image = cv2.imread(str(image_path))
+        with Timer("Image Read") as timer:
+
+            image = cv2.imread(str(image_path))
+
+        self.image_read_ms = timer.elapsed_ms
 
         if image is None:
             raise FileNotFoundError(image_path)

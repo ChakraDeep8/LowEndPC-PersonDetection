@@ -13,13 +13,23 @@ from pathlib import Path
 ROOT = Path(__file__).parent
 
 MODELS = ROOT / "models"
+
 IMAGES = ROOT / "images"
 VIDEOS = ROOT / "videos"
 
 RESULTS = ROOT / "results"
-CSV = RESULTS / "csv"
+
 OUTPUT_IMAGES = RESULTS / "images"
+CSV = RESULTS / "csv"
 LOGS = RESULTS / "logs"
+
+
+# ==========================
+# Input / Output
+# ==========================
+INPUT_IMAGE = IMAGES / "person.jpeg"
+OUTPUT_IMAGES = RESULTS / "images"
+
 
 # ==========================
 # Model
@@ -32,22 +42,19 @@ MODEL_PATH = MODELS / MODEL_NAME
 # Detection
 # ==========================
 
-PERSON_CLASS = 0
-
-CONFIDENCE = 0.15
-
+PPERSON_CLASS = 0
+CONFIDENCE = 0.25
 IOU = 0.45
-
 IMAGE_SIZE = 640
-
 DEVICE = "cpu"
+
 
 # ==========================
 # Benchmark
 # ==========================
 
 WARMUP_RUNS = 3
-BENCHMARK_RUNS = 30
+BENCHMARK_RUNS = 10
 
 # ==========================
 # Detection
