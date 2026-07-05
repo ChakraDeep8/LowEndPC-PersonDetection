@@ -58,7 +58,7 @@ from benchmark.logger import BenchmarkLogger
 from benchmark.system_info import SystemInfo
 
 import config
-
+import gc
 
 class BenchmarkRunner:
 
@@ -96,13 +96,15 @@ class BenchmarkRunner:
 
         print(f"\nBenchmark ({config.BENCHMARK_RUNS} runs)\n")
 
+
         for i in range(config.BENCHMARK_RUNS):
+
+            gc.collect()
 
             with Timer(f"Run {i+1}") as timer:
 
                 final_result = self.detector.detect(image_path)
-                print(f"Image Read: {self.detector.image_read_ms:.3f} ms")
-                
+
             profile = self.profiler.snapshot()
 
             timings.append(timer.elapsed_ms)
@@ -115,7 +117,9 @@ class BenchmarkRunner:
 
             print(
                 f"Run {i+1:02d}: "
-                f"{timer.elapsed_ms:.2f} ms"
+                f"{timer.elapsed_ms:7.2f} ms | "
+                f"CPU {profile['cpu_percent']:5.1f}% | "
+                f"RAM {profile['memory_percent']:5.1f}%"
             )
 
         report = {
@@ -124,10 +128,14 @@ class BenchmarkRunner:
 
             "model": self.detector.model_name,
 
-            "model_load_ms": self.detector.model_load_ms,
+            "model_load_ms": self.detector.timings["model_load_ms"],
 
-            "image_read_ms": self.detector.image_read_ms,
+            "image_read_ms": self.detector.timings["image_read_ms"],
 
+            "preprocess_ms": self.detector.timings["preprocess_ms"],
+
+            "inference_ms": self.detector.timings["inference_ms"],
+            
             "cpu_name": self.system["cpu"],
 
             "ram_gb": self.system["ram_gb"],
@@ -182,8 +190,8 @@ class BenchmarkRunner:
 
         round(report["model_load_ms"], 3),    # Model Load
         round(report["image_read_ms"], 3),    # Image Read
-        0,                                    # Preprocess
-        round(report["average_ms"], 3),       # Inference
+        round(report["preprocess_ms"], 3),    # Preprocess
+        round(report["inference_ms"], 3),     # Inference
         0,                                    # Postprocess
         0,                                    # Draw
         0,                                    # Save
@@ -224,6 +232,10 @@ class BenchmarkRunner:
         print(f"Model Load Time   : {report['model_load_ms']:.2f} ms")
 
         print(f"Image Read Time   : {report['image_read_ms']:.2f} ms")
+
+        print(f"Preprocess Time   : {report['preprocess_ms']:.2f} ms")
+
+        print(f"Inference Time    : {report['inference_ms']:.2f} ms")
 
         print(f"Average Latency   : {report['average_ms']:.2f} ms")
 

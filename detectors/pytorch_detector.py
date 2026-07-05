@@ -26,8 +26,15 @@ class PyTorchDetector(BaseDetector):
 
         self.engine = "PyTorch"
         self.model_name = config.MODEL_NAME
-        self.model_load_ms = 0.0
-        self.image_read_ms = 0.0
+        self.timings = {
+        "model_load_ms": 0.0,
+        "image_read_ms": 0.0,
+        "preprocess_ms": 0.0,
+        "inference_ms": 0.0,
+        "postprocess_ms": 0.0,
+        "draw_ms": 0.0,
+        "save_ms": 0.0,
+        }
         self.load_model()
 
     # --------------------------------------------------
@@ -44,9 +51,9 @@ class PyTorchDetector(BaseDetector):
 
             self.model = YOLO(str(config.MODEL_PATH))
 
-        self.model_load_ms = timer.elapsed_ms
+        self.timings["model_load_ms"] = timer.elapsed_ms
 
-        print(f"Model Loaded Successfully ({self.model_load_ms:.2f} ms)")
+        print(f"Model Loaded Successfully ({self.timings['model_load_ms']:.2f} ms)")
 
         return self.model
 
@@ -61,14 +68,20 @@ class PyTorchDetector(BaseDetector):
 
     def inference(self, image):
 
-        return self.model.predict(
-            source=image,
-            imgsz=config.IMAGE_SIZE,
-            conf=config.CONFIDENCE,
-            iou=config.IOU,
-            device=config.DEVICE,
-            verbose=False
-        )
+        with Timer("Inference") as timer:
+
+            predictions = self.model.predict(
+                source=image,
+                imgsz=config.IMAGE_SIZE,
+                conf=config.CONFIDENCE,
+                iou=config.IOU,
+                device=config.DEVICE,
+                verbose=False
+            )
+
+        self.timings["inference_ms"] = timer.elapsed_ms
+
+        return predictions
 
     # --------------------------------------------------
 
@@ -155,12 +168,15 @@ class PyTorchDetector(BaseDetector):
 
             image = cv2.imread(str(image_path))
 
-        self.image_read_ms = timer.elapsed_ms
+        self.timings["image_read_ms"] = timer.elapsed_ms
 
         if image is None:
             raise FileNotFoundError(image_path)
 
-        image = self.preprocess(image)
+        with Timer("Preprocess") as timer:
+                image = self.preprocess(image)
+                
+        self.timings["preprocess_ms"] = timer.elapsed_ms
 
         predictions = self.inference(image)
 
@@ -187,7 +203,6 @@ class PyTorchDetector(BaseDetector):
             "output": output_path
 
         }
-
 
 if __name__ == "__main__":
 
