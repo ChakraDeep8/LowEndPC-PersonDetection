@@ -57,6 +57,7 @@ from benchmark.profiler import Profiler
 from benchmark.logger import BenchmarkLogger
 from benchmark.system_info import SystemInfo
 
+from pathlib import Path
 import config
 import gc
 
@@ -167,7 +168,7 @@ class BenchmarkRunner:
 
             "ram_gb": self.system["ram_gb"],
 
-            "image": image_path,
+            "image": str(Path(image_path).relative_to(config.ROOT)),
 
             "average_ms": mean(timings),
 

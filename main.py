@@ -27,6 +27,7 @@ BenchmarkRunner
 
 from benchmark.benchmark_runner import BenchmarkRunner
 from detectors.pytorch_detector import PyTorchDetector
+from benchmark.system_info import SystemInfo
 
 import config
 
@@ -34,6 +35,8 @@ import config
 def main():
 
     detector = PyTorchDetector()
+
+    SystemInfo.save()
 
     runner = BenchmarkRunner(detector)
 

@@ -8,11 +8,14 @@ Author:
 Deep Chakraborty
 """
 
+import json
 import platform
-import psutil
-import cv2
-import torch
 import cpuinfo
+import psutil
+import torch
+import cv2
+import sys
+import config
 
 
 class SystemInfo:
@@ -50,7 +53,6 @@ class SystemInfo:
 
             "platform": platform.platform(),
 
-            "processor": platform.processor()
 
         }
 
@@ -69,3 +71,44 @@ class SystemInfo:
             print(f"{key:20}: {value}")
 
         print("=" * 60)
+
+    @staticmethod
+    def save():
+
+        output = config.RESULTS / "system_info.json"
+
+        output.parent.mkdir(
+            parents=True,
+            exist_ok=True
+        )
+
+        # Already exists
+        if output.exists():
+            return
+
+        with open(output, "w", encoding="utf-8") as f:
+
+            json.dump(
+                SystemInfo.collect(),
+                f,
+                indent=4
+            )
+
+
+    @staticmethod
+    def save_environment():
+
+        output = config.RESULTS / "system_info.json"
+
+        output.parent.mkdir(
+            parents=True,
+            exist_ok=True
+        )
+
+        with open(output, "w", encoding="utf-8") as f:
+
+            json.dump(
+                SystemInfo.collect(),
+                f,
+                indent=4
+            )
