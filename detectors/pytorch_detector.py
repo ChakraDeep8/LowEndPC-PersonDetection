@@ -186,7 +186,14 @@ class PyTorchDetector(BaseDetector):
 
         result, detections = self.postprocess(predictions)
 
-        annotated = result.plot()
+        with Timer("Draw") as timer:
+
+            annotated = self.draw(
+                image.copy(),
+                detections
+            )
+
+        self.timings["draw_ms"] = timer.elapsed_ms
 
         output_path = (
             config.OUTPUT_IMAGES /
