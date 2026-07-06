@@ -139,6 +139,8 @@ class BenchmarkRunner:
             "postprocess_ms": self.detector.timings["postprocess_ms"],
 
             "draw_ms": self.detector.timings["draw_ms"],
+
+            "save_ms": self.detector.timings["save_ms"],
             
             "cpu_name": self.system["cpu"],
 
@@ -198,7 +200,7 @@ class BenchmarkRunner:
         round(report["inference_ms"], 3),     # Inference
         round(report["postprocess_ms"], 3),   # Postprocess
         round(report["draw_ms"], 3),          # Draw
-        0,                                    # Save
+        round(report["save_ms"], 3),          # Save
         round(report["average_ms"], 3),       # Total
 
         # -----------------------------
@@ -244,6 +246,8 @@ class BenchmarkRunner:
         print(f"Postprocess Time  : {report['postprocess_ms']:.2f} ms")
 
         print(f"Draw Time         : {report['draw_ms']:.2f} ms")
+        
+        print(f"Save Time         : {report['save_ms']:.2f} ms")
 
         print(f"Average Latency   : {report['average_ms']:.2f} ms")
 

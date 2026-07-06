@@ -157,11 +157,14 @@ class PyTorchDetector(BaseDetector):
             exist_ok=True
         )
 
-        cv2.imwrite(
-            str(output_path),
-            image
-        )
+        with Timer("Save") as timer:
 
+            cv2.imwrite(
+                str(output_path),
+                image
+            )
+
+        self.timings["save_ms"] = timer.elapsed_ms
     # --------------------------------------------------
 
     def detect(self, image_path):
