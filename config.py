@@ -38,6 +38,9 @@ OUTPUT_IMAGES = RESULTS / "images"
 MODEL_NAME = "yolo11n.pt"
 MODEL_PATH = MODELS / MODEL_NAME
 
+ONNX_MODEL_NAME = "yolo11n.onnx"
+ONNX_MODEL_PATH = MODELS / ONNX_MODEL_NAME
+
 # ==========================
 # Detection
 # ==========================
