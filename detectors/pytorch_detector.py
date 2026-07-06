@@ -87,30 +87,34 @@ class PyTorchDetector(BaseDetector):
 
     def postprocess(self, predictions):
 
-        result = predictions[0]
+        with Timer("Postprocess") as timer:
 
-        detections = []
+            result = predictions[0]
 
-        for box in result.boxes:
+            detections = []
 
-            class_id = int(box.cls)
+            for box in result.boxes:
 
-            if class_id != config.PERSON_CLASS:
-                continue
+                class_id = int(box.cls)
 
-            x1, y1, x2, y2 = map(float, box.xyxy[0])
+                if class_id != config.PERSON_CLASS:
+                    continue
 
-            detections.append({
+                x1, y1, x2, y2 = map(float, box.xyxy[0])
 
-                "class_id": class_id,
+                detections.append({
 
-                "label": "person",
+                    "class_id": class_id,
 
-                "confidence": float(box.conf),
+                    "label": "person",
 
-                "bbox": [x1, y1, x2, y2]
+                    "confidence": float(box.conf),
 
-            })
+                    "bbox": [x1, y1, x2, y2]
+
+                })
+
+        self.timings["postprocess_ms"] = timer.elapsed_ms
 
         return result, detections
 

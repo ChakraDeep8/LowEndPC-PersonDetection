@@ -136,6 +136,8 @@ class BenchmarkRunner:
 
             "inference_ms": self.detector.timings["inference_ms"],
             
+            "postprocess_ms": self.detector.timings["postprocess_ms"],
+            
             "cpu_name": self.system["cpu"],
 
             "ram_gb": self.system["ram_gb"],
@@ -192,7 +194,7 @@ class BenchmarkRunner:
         round(report["image_read_ms"], 3),    # Image Read
         round(report["preprocess_ms"], 3),    # Preprocess
         round(report["inference_ms"], 3),     # Inference
-        0,                                    # Postprocess
+        round(report["postprocess_ms"], 3),                                    # Postprocess
         0,                                    # Draw
         0,                                    # Save
         round(report["average_ms"], 3),       # Total
@@ -236,6 +238,8 @@ class BenchmarkRunner:
         print(f"Preprocess Time   : {report['preprocess_ms']:.2f} ms")
 
         print(f"Inference Time    : {report['inference_ms']:.2f} ms")
+
+        print(f"Postprocess Time : {report['postprocess_ms']:.2f} ms")
 
         print(f"Average Latency   : {report['average_ms']:.2f} ms")
 
