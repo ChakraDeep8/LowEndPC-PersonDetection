@@ -83,7 +83,7 @@ class BenchmarkRunner:
 
             print(f"Warmup {i + 1}/{config.WARMUP_RUNS}")
 
-    def benchmark(self, image_path):
+    def benchmark(self, image_path, notes="BaseLine"):
 
         timings = []
 
@@ -188,6 +188,8 @@ class BenchmarkRunner:
 
             "process_memory": mean(process_memory),
 
+            "notes": notes,
+
             "persons": final_result["persons"],
 
             "output": final_result["output"]
@@ -200,7 +202,9 @@ class BenchmarkRunner:
 
     def save(self, report):
 
-        self.logger.log([
+        self.logger.log(
+        report["notes"],
+        [
 
         # -----------------------------
         # Basic Information

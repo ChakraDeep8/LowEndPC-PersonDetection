@@ -83,7 +83,7 @@ class BenchmarkLogger:
                 writer = csv.writer(f)
                 writer.writerow(self.header)
 
-    def log(self, row):
+    def log(self, notes, row):
 
         timestamp = datetime.now().astimezone().isoformat(timespec="milliseconds")
 
@@ -91,7 +91,7 @@ class BenchmarkLogger:
 
         experiment_id = self.next_experiment_id()
 
-        notes = "BaseLine"
+        
 
         with open(self.filename, "a", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)

@@ -42,7 +42,9 @@ def main():
 
     runner.warmup(config.INPUT_IMAGE)
 
-    report = runner.benchmark(config.INPUT_IMAGE)
+    report = runner.benchmark(
+        config.INPUT_IMAGE,
+        notes="PyTorch Baseline")
 
     runner.print_report(report)
 

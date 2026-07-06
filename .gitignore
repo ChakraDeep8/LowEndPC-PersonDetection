@@ -1,1 +1,25 @@
-results/csv/, results/images/, results/logs/, results/system_info.json, results/metadata.json
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Benchmark Outputs
+results/csv/*.csv
+results/images/*
+results/logs/*
+results/charts/*
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Model weights (optional)
+models/*.pt
+models/*.onnx
+models/*.xml
+models/*.bin
