@@ -207,14 +207,16 @@ class PyTorchDetector(BaseDetector):
             annotated,
             output_path
         )
-
+        
         return {
 
             "detections": detections,
 
             "persons": len(detections),
 
-            "output": output_path
+            "output": output_path,
+
+            "timings": self.timings.copy()
 
         }
 

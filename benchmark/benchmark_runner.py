@@ -86,11 +86,26 @@ class BenchmarkRunner:
 
         timings = []
 
+        stage_timings = {
+
+            "image_read_ms": [],
+
+            "preprocess_ms": [],
+
+            "inference_ms": [],
+
+            "postprocess_ms": [],
+
+            "draw_ms": [],
+
+            "save_ms": []
+
+        }
+
         cpu_usage = []
-
         ram_usage = []
-
         process_memory = []
+
 
         final_result = None
 
@@ -104,6 +119,12 @@ class BenchmarkRunner:
             with Timer(f"Run {i+1}") as timer:
 
                 final_result = self.detector.detect(image_path)
+
+            for key in stage_timings:
+
+                stage_timings[key].append(
+                    final_result["timings"][key]
+                )            
 
             profile = self.profiler.snapshot()
 
@@ -130,17 +151,17 @@ class BenchmarkRunner:
 
             "model_load_ms": self.detector.timings["model_load_ms"],
 
-            "image_read_ms": self.detector.timings["image_read_ms"],
+            "image_read_ms": mean(stage_timings["image_read_ms"]),
 
-            "preprocess_ms": self.detector.timings["preprocess_ms"],
+            "preprocess_ms": mean(stage_timings["preprocess_ms"]),
 
-            "inference_ms": self.detector.timings["inference_ms"],
-            
-            "postprocess_ms": self.detector.timings["postprocess_ms"],
+            "inference_ms": mean(stage_timings["inference_ms"]),
 
-            "draw_ms": self.detector.timings["draw_ms"],
+            "postprocess_ms": mean(stage_timings["postprocess_ms"]),
 
-            "save_ms": self.detector.timings["save_ms"],
+            "draw_ms": mean(stage_timings["draw_ms"]),
+
+            "save_ms": mean(stage_timings["save_ms"]),
             
             "cpu_name": self.system["cpu"],
 

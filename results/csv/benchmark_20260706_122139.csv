@@ -1,0 +1,2 @@
+Timestamp,Engine,Model,Input,CPU,RAM(GB),Model Load(ms),Image Read(ms),Preprocess(ms),Inference(ms),Postprocess(ms),Draw(ms),Save(ms),Total(ms),FPS,CPU Usage(%),RAM Usage(%),Process Memory(MB),Threads,Persons
+2026-07-06T12:21:46.221+05:30,PyTorch,yolo11n.pt,/run/media/deep/Storage/LowEndPC-PersonDetection/images/person.jpeg,Intel(R) Core(TM) i3-4150 CPU @ 3.50GHz,15.02,63.572,21.926,0.002,105.066,0.331,2.877,29.109,159.497,6.27,16.62,29.46,674.69,11,3
