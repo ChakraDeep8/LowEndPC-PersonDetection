@@ -13,9 +13,9 @@ from pathlib import Path
 import cv2
 from ultralytics import YOLO
 
+import config
 from benchmark.timer import Timer
 from detectors.base_detector import BaseDetector
-import config
 
 
 class PyTorchDetector(BaseDetector):
@@ -26,15 +26,7 @@ class PyTorchDetector(BaseDetector):
 
         self.engine = "PyTorch"
         self.model_name = config.MODEL_NAME
-        self.timings = {
-        "model_load_ms": 0.0,
-        "image_read_ms": 0.0,
-        "preprocess_ms": 0.0,
-        "inference_ms": 0.0,
-        "postprocess_ms": 0.0,
-        "draw_ms": 0.0,
-        "save_ms": 0.0,
-        }
+
         self.load_model()
 
     # --------------------------------------------------
@@ -42,31 +34,48 @@ class PyTorchDetector(BaseDetector):
     # --------------------------------------------------
 
     def load_model(self):
-
-        from benchmark.timer import Timer
+        """
+        Load PyTorch YOLO model.
+        """
 
         print("Loading model...")
 
         with Timer("Model Loading") as timer:
 
-            self.model = YOLO(str(config.MODEL_PATH))
+            self.model = YOLO(
+                str(config.MODEL_PATH)
+            )
 
         self.timings["model_load_ms"] = timer.elapsed_ms
 
-        print(f"Model Loaded Successfully ({self.timings['model_load_ms']:.2f} ms)")
+        print(
+            f"Model Loaded Successfully "
+            f"({self.timings['model_load_ms']:.2f} ms)"
+        )
 
         return self.model
 
     # --------------------------------------------------
 
-    def preprocess(self, image):
+    def preprocess(
+        self,
+        image
+    ):
+        """
+        Ultralytics handles preprocessing internally.
+        """
 
-        # Ultralytics handles preprocessing internally.
         return image
 
     # --------------------------------------------------
 
-    def inference(self, image):
+    def inference(
+        self,
+        image
+    ):
+        """
+        Run PyTorch inference.
+        """
 
         with Timer("Inference") as timer:
 
@@ -85,7 +94,14 @@ class PyTorchDetector(BaseDetector):
 
     # --------------------------------------------------
 
-    def postprocess(self, predictions):
+    def postprocess(
+        self,
+        predictions
+    ):
+        """
+        Convert Ultralytics results into the
+        framework-standard detection format.
+        """
 
         with Timer("Postprocess") as timer:
 
@@ -100,7 +116,10 @@ class PyTorchDetector(BaseDetector):
                 if class_id != config.PERSON_CLASS:
                     continue
 
-                x1, y1, x2, y2 = map(float, box.xyxy[0])
+                x1, y1, x2, y2 = map(
+                    float,
+                    box.xyxy[0]
+                )
 
                 detections.append({
 
@@ -110,45 +129,71 @@ class PyTorchDetector(BaseDetector):
 
                     "confidence": float(box.conf),
 
-                    "bbox": [x1, y1, x2, y2]
+                    "bbox": [
+                        x1,
+                        y1,
+                        x2,
+                        y2
+                    ]
 
                 })
 
         self.timings["postprocess_ms"] = timer.elapsed_ms
 
-        return result, detections
+        return detections
 
     # --------------------------------------------------
 
-    def draw(self, image, detections):
+    def draw(
+        self,
+        image,
+        detections
+    ):
+        """
+        Draw detections on image.
+        """
 
-        for detection in detections:
+        with Timer("Draw") as timer:
 
-            x1, y1, x2, y2 = map(int, detection["bbox"])
+            for detection in detections:
 
-            cv2.rectangle(
-                image,
-                (x1, y1),
-                (x2, y2),
-                config.BOX_COLOR,
-                config.BOX_THICKNESS
-            )
+                x1, y1, x2, y2 = map(
+                    int,
+                    detection["bbox"]
+                )
 
-            cv2.putText(
-                image,
-                f"{detection['confidence']:.2f}",
-                (x1, y1 - 10),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                config.FONT_SCALE,
-                config.BOX_COLOR,
-                2
-            )
+                cv2.rectangle(
+                    image,
+                    (x1, y1),
+                    (x2, y2),
+                    config.BOX_COLOR,
+                    config.BOX_THICKNESS
+                )
+
+                cv2.putText(
+                    image,
+                    f"{detection['confidence']:.2f}",
+                    (x1, max(y1 - 10, 20)),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    config.FONT_SCALE,
+                    config.BOX_COLOR,
+                    2
+                )
+
+        self.timings["draw_ms"] = timer.elapsed_ms
 
         return image
 
     # --------------------------------------------------
 
-    def save(self, image, output_path):
+    def save(
+        self,
+        image,
+        output_path
+    ):
+        """
+        Save annotated image.
+        """
 
         output_path = Path(output_path)
 
@@ -165,49 +210,90 @@ class PyTorchDetector(BaseDetector):
             )
 
         self.timings["save_ms"] = timer.elapsed_ms
+
     # --------------------------------------------------
 
-    def detect(self, image_path):
+    def detect(
+        self,
+        image_path
+    ):
+        """
+        Complete PyTorch detection pipeline.
+        """
 
         image_path = Path(image_path)
 
+        # -------------------------
+        # Image Read
+        # -------------------------
+
         with Timer("Image Read") as timer:
 
-            image = cv2.imread(str(image_path))
+            image = cv2.imread(
+                str(image_path)
+            )
 
         self.timings["image_read_ms"] = timer.elapsed_ms
 
         if image is None:
+
             raise FileNotFoundError(image_path)
 
+        # -------------------------
+        # Preprocess
+        # -------------------------
+
         with Timer("Preprocess") as timer:
-                image = self.preprocess(image)
-                
+
+            image = self.preprocess(image)
+
         self.timings["preprocess_ms"] = timer.elapsed_ms
+
+        # -------------------------
+        # Inference
+        # -------------------------
 
         predictions = self.inference(image)
 
-        result, detections = self.postprocess(predictions)
+        # -------------------------
+        # Postprocess
+        # -------------------------
 
-        with Timer("Draw") as timer:
+        detections = self.postprocess(
+            predictions
+        )
 
-            annotated = self.draw(
-                image.copy(),
-                detections
-            )
+        # -------------------------
+        # Draw
+        # -------------------------
 
-        self.timings["draw_ms"] = timer.elapsed_ms
+        annotated = self.draw(
+            image.copy(),
+            detections
+        )
+
+        # -------------------------
+        # Save
+        # -------------------------
 
         output_path = (
             config.OUTPUT_IMAGES /
-            f"{image_path.stem}_result.jpg"
+            (
+                image_path.stem +
+                "_result" +
+                image_path.suffix
+            )
         )
 
         self.save(
             annotated,
             output_path
         )
-        
+
+        # -------------------------
+        # Return
+        # -------------------------
+
         return {
 
             "detections": detections,
@@ -220,17 +306,22 @@ class PyTorchDetector(BaseDetector):
 
         }
 
+
 if __name__ == "__main__":
 
     detector = PyTorchDetector()
 
     result = detector.detect(
-        "images/person.jpg"
+        config.INPUT_IMAGE
     )
 
     print("\nDetection Summary")
     print("-----------------------------")
 
-    print(f"Persons : {result['persons']}")
+    print(
+        f"Persons : {result['persons']}"
+    )
 
-    print(f"Output  : {result['output']}")
+    print(
+        f"Output  : {result['output']}"
+    )

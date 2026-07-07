@@ -4,6 +4,8 @@ Detection Post Processor
 Project:
 LowEndPC-PersonDetection
 
+
+
 Author:
 Deep Chakraborty
 """
@@ -23,11 +25,9 @@ class PostProcessor:
 
     # --------------------------------------------------
 
-    def process(self, prediction):
+    def process(self, prediction, metadata):
         """
         Complete postprocessing pipeline.
-
-        Current Pipeline
 
         Decode
             ↓
@@ -36,6 +36,8 @@ class PostProcessor:
         Convert Boxes
             ↓
         NMS
+            ↓
+        Normalize
         """
 
         boxes, scores = self.decode(prediction)
@@ -47,17 +49,24 @@ class PostProcessor:
 
         boxes = self.convert_boxes(boxes)
 
+        boxes = self.restore_boxes(
+            boxes,
+            metadata
+        )
+
         boxes, confidences, class_ids = self.nms(
             boxes,
             confidences,
             class_ids
         )
 
-        return (
+        detections = self.normalize(
             boxes,
             confidences,
             class_ids
         )
+
+        return detections
 
     # --------------------------------------------------
 
@@ -126,10 +135,10 @@ class PostProcessor:
     # --------------------------------------------------
 
     def nms(
-            self,
-            boxes,
-            scores,
-            class_ids
+    self,
+    boxes,
+    scores,
+    class_ids
         ):
             """
             Apply Non-Maximum Suppression.
@@ -137,10 +146,10 @@ class PostProcessor:
             Parameters
             ----------
             boxes : numpy.ndarray
-                Shape (N, 4) in xyxy format.
+                Bounding boxes in xyxy format.
 
             scores : numpy.ndarray
-                Confidence scores.
+                Detection confidences.
 
             class_ids : numpy.ndarray
 
@@ -152,6 +161,9 @@ class PostProcessor:
                 class_ids
             """
 
+            import cv2
+            import numpy as np
+
             if len(boxes) == 0:
 
                 return (
@@ -160,13 +172,13 @@ class PostProcessor:
                     class_ids
                 )
 
-            boxes_cv = []
+            nms_boxes = []
 
             for box in boxes:
 
                 x1, y1, x2, y2 = box
 
-                boxes_cv.append([
+                nms_boxes.append([
                     float(x1),
                     float(y1),
                     float(x2 - x1),
@@ -174,10 +186,10 @@ class PostProcessor:
                 ])
 
             indices = cv2.dnn.NMSBoxes(
-                boxes_cv,
-                scores.tolist(),
-                self.confidence,
-                self.iou
+                bboxes=nms_boxes,
+                scores=scores.tolist(),
+                score_threshold=self.confidence,
+                nms_threshold=self.iou
             )
 
             if len(indices) == 0:
@@ -199,12 +211,74 @@ class PostProcessor:
     # --------------------------------------------------
 
     def normalize(
-        self,
-        boxes,
-        scores,
-        class_ids
-    ):
+    self,
+    boxes,
+    scores,
+    class_ids
+        ):
+            """
+            Convert detections into the framework-standard format.
+
+            Returns
+            -------
+            list[dict]
+            """
+
+            detections = []
+
+            for box, score, class_id in zip(
+                boxes,
+                scores,
+                class_ids
+            ):
+
+                detections.append({
+
+                    "bbox": box.tolist(),
+
+                    "confidence": float(score),
+
+                    "class_id": int(class_id),
+
+                    "label": "person"
+
+                })
+
+            return detections
+    
+
+    def restore_boxes(
+    self,
+    boxes,
+    metadata
+     ):
         """
-        Return framework-standard detections.
+        Convert boxes from letterboxed image
+        back to original image coordinates.
         """
-        raise NotImplementedError
+
+        scale = metadata["scale"]
+
+        pad_x, pad_y = metadata["pad"]
+
+        original_height, original_width = metadata["original_shape"]
+
+        boxes[:, [0, 2]] -= pad_x
+        boxes[:, [1, 3]] -= pad_y
+
+        boxes /= scale
+        
+        boxes[:, [0, 2]] = np.clip(
+            boxes[:, [0, 2]],
+            0,
+            original_width
+        )
+
+        boxes[:, [1, 3]] = np.clip(
+            boxes[:, [1, 3]],
+            0,
+            original_height
+        )
+
+        return boxes
+    

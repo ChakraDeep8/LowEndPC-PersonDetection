@@ -11,10 +11,22 @@ tensor = detector.preprocess(image)
 
 output = detector.inference(tensor)
 
-print("\nOutput Shape :", output.shape)
-print("Output Type  :", output.dtype)
-print("Min Value    :", output.min())
-print("Max Value    :", output.max())
+detections = detector.postprocess(output)
+
+print("\nDetections\n")
+
+for detection in detections:
+
+    print(detection)
+
+print()
+
+print("Total Persons :", len(detections))
+
+# print("\nOutput Shape :", output.shape)
+# print("Output Type  :", output.dtype)
+# print("Min Value    :", output.min())
+# print("Max Value    :", output.max())
 
 # result = detector.postprocess(output)
 
@@ -24,12 +36,12 @@ print("Max Value    :", output.max())
 # print(f"Boxes: {boxes.shape}")
 # print(f"Confidence range: {confidences.min():.3f} - {confidences.max():.3f}")
 
-boxes, confidences, class_ids = detector.postprocess(output)
+# boxes, confidences, class_ids = detector.postprocess(output)
 
-print("\nAfter Postprocess")
+# print("\nAfter Postprocess")
 
-print("Boxes Shape :", boxes.shape)
-print("Confidences :", confidences)
-print("Class IDs   :", class_ids)
+# print("Boxes Shape :", boxes.shape)
+# print("Confidences :", confidences)
+# print("Class IDs   :", class_ids)
 
-print("Total Persons :", len(boxes))
+# print("Total Persons :", len(boxes))

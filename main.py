@@ -27,6 +27,7 @@ BenchmarkRunner
 
 from benchmark.benchmark_runner import BenchmarkRunner
 from detectors.pytorch_detector import PyTorchDetector
+from detectors.onnx_detector import ONNXDetector
 from benchmark.system_info import SystemInfo
 
 import config
@@ -34,19 +35,31 @@ import config
 
 def main():
 
-    detector = PyTorchDetector()
+        if config.ENGINE == config.PYTORCH:
 
-    SystemInfo.save()
+                detector = PyTorchDetector()
 
-    runner = BenchmarkRunner(detector)
+        elif config.ENGINE == config.ONNX:
 
-    runner.warmup(config.INPUT_IMAGE)
+                detector = ONNXDetector()
 
-    report = runner.benchmark(
-        config.INPUT_IMAGE,
-        notes="PyTorch Baseline")
+        else:
 
-    runner.print_report(report)
+                raise ValueError(
+                        f"Unsupported engine: {config.ENGINE}"
+                )
+
+        SystemInfo.save()
+
+        runner = BenchmarkRunner(detector)
+
+        runner.warmup(config.INPUT_IMAGE)
+
+        report = runner.benchmark(
+                config.INPUT_IMAGE,
+                notes="PyTorch Baseline")
+
+        runner.print_report(report)
 
 
 if __name__ == "__main__":

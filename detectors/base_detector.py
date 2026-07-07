@@ -4,6 +4,20 @@ Base Detector
 Project:
 LowEndPC-PersonDetection
 
+Shared by all detector backends. Because every detector measures exactly the same stages.
+
+Therefore:
+
+BaseDetector
+        │
+        ├── timings
+        ├── engine
+        └── model_name
+
+becomes shared state.
+
+PyTorch, ONNX, OpenVINO and OpenCV DNN all inherit it.
+
 Author:
 Deep Chakraborty
 """
@@ -18,6 +32,23 @@ class BaseDetector(ABC):
         self.model = None
         self.engine = ""
         self.model_name = ""
+        self.timings = {
+
+        "model_load_ms": 0.0,
+
+        "image_read_ms": 0.0,
+
+        "preprocess_ms": 0.0,
+
+        "inference_ms": 0.0,
+
+        "postprocess_ms": 0.0,
+
+        "draw_ms": 0.0,
+
+        "save_ms": 0.0
+
+    }
 
     @abstractmethod
     def load_model(self):

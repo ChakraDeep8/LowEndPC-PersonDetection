@@ -27,7 +27,7 @@ LOGS = RESULTS / "logs"
 # ==========================
 # Input / Output
 # ==========================
-INPUT_IMAGE = IMAGES / "person.jpeg"
+INPUT_IMAGE = IMAGES / "Traffic.jpeg"
 OUTPUT_IMAGES = RESULTS / "images"
 
 
@@ -84,3 +84,20 @@ FONT_SCALE = 0.6
 
 SAVE_OUTPUT_IMAGE = True
 SAVE_CSV = True
+
+# ==========================
+# Models
+# ==========================
+
+# Options
+# "pytorch"
+# "onnx"
+# "openvino"
+# "opencv"
+
+PYTORCH = "pytorch"
+ONNX = "onnx"
+OPENVINO = "openvino"
+OPENCV = "opencv"
+
+ENGINE = PYTORCH

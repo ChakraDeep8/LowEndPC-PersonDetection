@@ -4,6 +4,40 @@ Image Preprocessor
 Project:
 LowEndPC-PersonDetection
 
+Algorithm:
+
+Original Image
+        │
+        ▼
+Get Original Size
+        │
+        ▼
+Compute Scale
+        │
+        ▼
+Resize (Keep Aspect Ratio)
+        │
+        ▼
+Compute Padding
+        │
+        ▼
+Pad to 640×640
+        │
+        ▼
+BGR → RGB
+        │
+        ▼
+float32 /255
+        │
+        ▼
+HWC → CHW
+        │
+        ▼
+Batch Dimension
+        │
+        ▼
+Return Tensor + Metadata
+
 Author:
 Deep Chakraborty
 """
@@ -22,27 +56,72 @@ class Preprocessor:
 
     # --------------------------------------------------
 
-    def process(self, image):
-
+    def letterbox(self, image):
         """
-        Convert OpenCV image into
-        backend-ready tensor.
-
-        Parameters
-        ----------
-        image : numpy.ndarray
+        Resize image while preserving aspect ratio.
 
         Returns
         -------
-        numpy.ndarray
-            Shape:
-            (1, 3, IMAGE_SIZE, IMAGE_SIZE)
+        resized_image
+        scale
+        (pad_x, pad_y)
+        (new_width, new_height)
         """
 
-        image = cv2.resize(
-            image,
-            (self.image_size, self.image_size)
+        original_height, original_width = image.shape[:2]
+
+        scale = min(
+            self.image_size / original_width,
+            self.image_size / original_height
         )
+
+        new_width = int(round(original_width * scale))
+        new_height = int(round(original_height * scale))
+
+        resized = cv2.resize(
+            image,
+            (new_width, new_height),
+            interpolation=cv2.INTER_LINEAR
+        )
+
+        pad_width = self.image_size - new_width
+        pad_height = self.image_size - new_height
+
+        pad_left = pad_width // 2
+        pad_right = pad_width - pad_left
+
+        pad_top = pad_height // 2
+        pad_bottom = pad_height - pad_top
+
+        padded = cv2.copyMakeBorder(
+            resized,
+            pad_top,
+            pad_bottom,
+            pad_left,
+            pad_right,
+            cv2.BORDER_CONSTANT,
+            value=(114, 114, 114)
+        )
+
+        return (
+            padded,
+            scale,
+            (pad_left, pad_top),
+            (new_width, new_height)
+        )
+
+    def process(self, image):
+        """
+        Convert image into backend-ready tensor.
+
+        Returns
+        -------
+        dict
+        """
+
+        original_shape = image.shape[:2]
+
+        image, scale, pad, resized_shape = self.letterbox(image)
 
         image = cv2.cvtColor(
             image,
@@ -58,9 +137,21 @@ class Preprocessor:
             (2, 0, 1)
         )
 
-        image = np.expand_dims(
+        tensor = np.expand_dims(
             image,
             axis=0
         )
 
-        return image
+        return {
+
+            "tensor": tensor,
+
+            "original_shape": original_shape,
+
+            "resized_shape": resized_shape,
+
+            "scale": scale,
+
+            "pad": pad
+
+        }
