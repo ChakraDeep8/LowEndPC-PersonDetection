@@ -33,7 +33,10 @@ class ONNXDetector(BaseDetector):
         self.preprocessor = Preprocessor()
         self.postprocessor = PostProcessor()
         self.engine = "ONNX Runtime"
-        self.model_name = config.ONNX_MODEL_NAME
+        self.backend_version = ort.__version__
+        self.device = "CPU"
+        self.model_format = config.ONNX_MODEL_PATH.suffix.lstrip(".")
+        self.model_name = config.ONNX_MODEL_PATH.stem
         self.load_model()
 
     # --------------------------------------------------
@@ -110,7 +113,10 @@ class ONNXDetector(BaseDetector):
 
     def postprocess(self, predictions):
 
-        return self.postprocessor.process(predictions)
+        return self.postprocessor.process(
+        predictions,
+        self.preprocess_metadata
+        )
     
     def detect(self, image_path):
         """

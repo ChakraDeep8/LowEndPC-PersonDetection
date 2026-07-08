@@ -49,18 +49,36 @@ def main():
                         f"Unsupported engine: {config.ENGINE}"
                 )
 
-        SystemInfo.save()
+        # SystemInfo.save()
 
         runner = BenchmarkRunner(detector)
 
         runner.warmup(config.INPUT_IMAGE)
 
-        report = runner.benchmark(
-                config.INPUT_IMAGE,
-                notes="PyTorch Baseline")
+        if config.RUN_MODE == config.BENCHMARK:
 
-        runner.print_report(report)
+                report = runner.benchmark(
+                        config.INPUT_IMAGE,
+                        notes="PyTorch Baseline"
+                )
 
+                runner.print_report(report)
+
+        elif config.RUN_MODE == config.VALIDATION:
+
+                print("\nRunning Backend Validation...\n")
+
+                runner.validate(
+                        reference_detector=PyTorchDetector(),
+                        target_detector=ONNXDetector(),
+                        image_path=config.INPUT_IMAGE
+                )
+
+        else:
+
+                raise ValueError(
+                        f"Unsupported run mode: {config.RUN_MODE}"
+                )
 
 if __name__ == "__main__":
     main()

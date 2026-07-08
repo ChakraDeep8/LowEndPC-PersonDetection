@@ -10,7 +10,9 @@ Deep Chakraborty
 
 from pathlib import Path
 import csv
-from datetime import datetime, timezone
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 import config
 import json
 
@@ -37,7 +39,9 @@ class BenchmarkLogger:
                     indent=4
                 )
         
-        today = datetime.now().strftime("%Y-%m-%d")
+        today = datetime.now(
+                ZoneInfo(config.TIMEZONE)
+            ).strftime("%d-%m-%Y")
 
         self.filename = (
             self.output_dir /
@@ -45,35 +49,49 @@ class BenchmarkLogger:
         )
         
         self.header = [
-        "Experiment ID",
-        "Run ID",
-        "Timestamp",
-        "Notes",
-        "Engine",
-        "Model",
-        "Input",
-        "CPU",
-        "RAM(GB)",
 
-        "Model Load(ms)",
-        "Image Read(ms)",
-        "Preprocess(ms)",
-        "Inference(ms)",
-        "Postprocess(ms)",
-        "Draw(ms)",
-        "Save(ms)",
+            "Experiment ID",
+            "Run ID",
+            "Timestamp",
+            "Notes",
 
-        "Total(ms)",
+            "Engine",
+            "Backend Version",
+            "Device",
 
-        "FPS",
+            "Model",
+            "Model Format",
 
-        "CPU Usage(%)",
-        "RAM Usage(%)",
-        "Process Memory(MB)",
+            "Input",
+            "Image Width",
+            "Image Height",
+            "Input Size",
 
-        "Threads",
+            "CPU",
+            "RAM(GB)",
 
-        "Persons"
+            "Model Load(ms)",
+            "Image Read(ms)",
+            "Preprocess(ms)",
+            "Inference(ms)",
+            "Postprocess(ms)",
+            "Draw(ms)",
+            "Save(ms)",
+
+            "Total(ms)",
+
+            "FPS",
+
+            "CPU Usage(%)",
+            "RAM Usage(%)",
+            "Process Memory(MB)",
+
+            "Threads",
+
+            "Detections",
+
+            "Success"
+
         ]
 
         if not self.filename.exists():
@@ -85,8 +103,10 @@ class BenchmarkLogger:
 
     def log(self, notes, row):
 
-        timestamp = datetime.now().astimezone().isoformat(timespec="milliseconds")
-
+        timestamp = datetime.now(ZoneInfo
+                                 (config.TIMEZONE)).strftime(
+                                    config.TIMESTAMP_FORMAT
+                                )
         run_id = self.next_run_id()
 
         experiment_id = self.next_experiment_id()

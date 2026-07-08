@@ -27,7 +27,7 @@ LOGS = RESULTS / "logs"
 # ==========================
 # Input / Output
 # ==========================
-INPUT_IMAGE = IMAGES / "Traffic.jpeg"
+INPUT_IMAGE = IMAGES / "Crowd.jpeg"
 OUTPUT_IMAGES = RESULTS / "images"
 
 
@@ -101,3 +101,20 @@ OPENVINO = "openvino"
 OPENCV = "opencv"
 
 ENGINE = PYTORCH
+
+# ==========================
+# TIMEZONE
+# ==========================
+
+TIMEZONE = "Asia/Kolkata"
+
+TIMESTAMP_FORMAT = "%d-%m-%Y %H:%M:%S"
+
+# ==========================
+# Run Mode
+# ==========================
+
+BENCHMARK = "benchmark"
+VALIDATION = "validation"
+
+RUN_MODE = BENCHMARK

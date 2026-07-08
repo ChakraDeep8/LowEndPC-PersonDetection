@@ -12,7 +12,7 @@ from pathlib import Path
 
 import cv2
 from ultralytics import YOLO
-
+import torch
 import config
 from benchmark.timer import Timer
 from detectors.base_detector import BaseDetector
@@ -25,8 +25,22 @@ class PyTorchDetector(BaseDetector):
         super().__init__()
 
         self.engine = "PyTorch"
-        self.model_name = config.MODEL_NAME
+        self.model_name = config.MODEL_PATH.stem
+        self.backend_version = torch.__version__
+        
+        if config.DEVICE.lower() == "cpu":
 
+            self.device = "CPU"
+
+        elif "cuda" in config.DEVICE.lower():
+
+            self.device = "CUDA"
+
+        else:
+
+            self.device = config.DEVICE
+
+        self.model_format = config.MODEL_PATH.suffix.lstrip(".")
         self.load_model()
 
     # --------------------------------------------------
