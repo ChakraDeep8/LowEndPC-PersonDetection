@@ -1,7 +1,7 @@
 Phase roadmap
 
 Phase 1 
-✅ Environment setup
+Environment setup
 
 Phase 2
 PyTorch detector

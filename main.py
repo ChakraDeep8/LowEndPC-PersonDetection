@@ -28,6 +28,7 @@ BenchmarkRunner
 from benchmark.benchmark_runner import BenchmarkRunner
 from detectors.pytorch_detector import PyTorchDetector
 from detectors.onnx_detector import ONNXDetector
+from detectors.openvino_detector import OpenVINODetector
 from benchmark.system_info import SystemInfo
 
 import config
@@ -43,6 +44,10 @@ def main():
 
                 detector = ONNXDetector()
 
+        elif config.ENGINE == config.OPENVINO:
+
+                detector = OpenVINODetector()
+
         else:
 
                 raise ValueError(
@@ -57,21 +62,32 @@ def main():
 
         if config.RUN_MODE == config.BENCHMARK:
 
-                report = runner.benchmark(
-                        config.INPUT_IMAGE,
-                        notes="PyTorch Baseline"
-                )
+                # report = runner.benchmark(
+                #         config.INPUT_IMAGE,
+                #         notes="PyTorch Baseline"
+                # )
 
+                # runner.print_report(report)
+
+                report = runner.benchmark(
+                config.INPUT_IMAGE,
+                notes="OpenVINO FP32 Baseline"
+                )
                 runner.print_report(report)
 
         elif config.RUN_MODE == config.VALIDATION:
 
                 print("\nRunning Backend Validation...\n")
 
+                # runner.validate(
+                #         reference_detector=PyTorchDetector(),
+                #         target_detector=ONNXDetector(),
+                #         image_path=config.INPUT_IMAGE
+                # )
                 runner.validate(
-                        reference_detector=PyTorchDetector(),
-                        target_detector=ONNXDetector(),
-                        image_path=config.INPUT_IMAGE
+                reference_detector=ONNXDetector(),
+                target_detector=OpenVINODetector(),
+                image_path=config.INPUT_IMAGE
                 )
 
         else:

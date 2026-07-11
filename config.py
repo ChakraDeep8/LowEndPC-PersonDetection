@@ -6,6 +6,7 @@ LowEndPC-PersonDetection
 
 from pathlib import Path
 
+
 # ==========================
 # Project Directories
 # ==========================
@@ -27,12 +28,12 @@ LOGS = RESULTS / "logs"
 # ==========================
 # Input / Output
 # ==========================
+
 INPUT_IMAGE = IMAGES / "Crowd.jpeg"
-OUTPUT_IMAGES = RESULTS / "images"
 
 
 # ==========================
-# Model
+# Models
 # ==========================
 
 MODEL_NAME = "yolo11n.pt"
@@ -41,14 +42,25 @@ MODEL_PATH = MODELS / MODEL_NAME
 ONNX_MODEL_NAME = "yolo11n.onnx"
 ONNX_MODEL_PATH = MODELS / ONNX_MODEL_NAME
 
+OPENVINO_MODEL_DIR = MODELS / "yolo11n_openvino_model" 
+OPENVINO_MODEL_NAME = "yolo11n.xml"
+OPENVINO_MODEL_PATH = (
+    OPENVINO_MODEL_DIR /
+    OPENVINO_MODEL_NAME
+)
+
+
 # ==========================
 # Detection
 # ==========================
 
-PPERSON_CLASS = 0
+PERSON_CLASS = 0
+
 CONFIDENCE = 0.25
 IOU = 0.45
+
 IMAGE_SIZE = 640
+
 DEVICE = "cpu"
 
 
@@ -59,16 +71,6 @@ DEVICE = "cpu"
 WARMUP_RUNS = 3
 BENCHMARK_RUNS = 10
 
-# ==========================
-# Detection
-# ==========================
-
-CONFIDENCE = 0.25
-IOU = 0.45
-IMAGE_SIZE = 640
-DEVICE = "cpu"
-
-PERSON_CLASS = 0
 
 # ==========================
 # Drawing
@@ -78,6 +80,7 @@ BOX_COLOR = (0, 255, 0)
 BOX_THICKNESS = 2
 FONT_SCALE = 0.6
 
+
 # ==========================
 # Save
 # ==========================
@@ -85,30 +88,26 @@ FONT_SCALE = 0.6
 SAVE_OUTPUT_IMAGE = True
 SAVE_CSV = True
 
-# ==========================
-# Models
-# ==========================
 
-# Options
-# "pytorch"
-# "onnx"
-# "openvino"
-# "opencv"
+# ==========================
+# Engines
+# ==========================
 
 PYTORCH = "pytorch"
 ONNX = "onnx"
 OPENVINO = "openvino"
 OPENCV = "opencv"
 
-ENGINE = PYTORCH
+ENGINE = OPENVINO
 
 # ==========================
-# TIMEZONE
+# Time
 # ==========================
 
 TIMEZONE = "Asia/Kolkata"
 
 TIMESTAMP_FORMAT = "%d-%m-%Y %H:%M:%S"
+
 
 # ==========================
 # Run Mode
