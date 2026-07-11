@@ -272,7 +272,7 @@ class OpenCVDetector(BaseDetector):
 
         output_filename = (
             image_path.stem
-            + "_result"
+            + "_result_opencv"
             + image_path.suffix
         )
 

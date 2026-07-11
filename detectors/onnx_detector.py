@@ -257,7 +257,7 @@ class ONNXDetector(BaseDetector):
 
         output_filename = (
             input_path.stem +
-            "_result" +
+            "_result_onnx" +
             input_path.suffix
         )
 

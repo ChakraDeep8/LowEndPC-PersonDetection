@@ -319,7 +319,7 @@ class OpenVINODetector(BaseDetector):
 
         output_filename = (
             image_path.stem
-            + "_result"
+            + "_result_openvino"
             + image_path.suffix
         )
 

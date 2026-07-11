@@ -294,7 +294,7 @@ class PyTorchDetector(BaseDetector):
             config.OUTPUT_IMAGES /
             (
                 image_path.stem +
-                "_result" +
+                "_result_pytorch" +
                 image_path.suffix
             )
         )

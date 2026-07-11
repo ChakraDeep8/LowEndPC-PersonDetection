@@ -70,7 +70,26 @@ DEVICE = "cpu"
 
 WARMUP_RUNS = 3
 BENCHMARK_RUNS = 10
+ISOLATED_TRIALS = 5
 
+# ==========================
+# Input Mode
+# ==========================
+
+IMAGE = "image"
+WEBCAM = "webcam"
+RTSP = "rtsp"
+
+INPUT_MODE = IMAGE
+
+
+# ==========================
+# Real-Time Input
+# ==========================
+
+WEBCAM_INDEX = 0
+
+RTSP_URL = None
 
 # ==========================
 # Drawing
