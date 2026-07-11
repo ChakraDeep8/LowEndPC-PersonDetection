@@ -65,17 +65,6 @@ Mode: CPU inference
 
 ## Phase Roadmap
 
-  Phase   Focus                                   Status
-  ------- --------------------------------------- -------------
-  1       Environment and Architecture            Complete
-  2       Detection Pipeline                      Complete
-  3       Benchmark Automation                    In Progress
-  4       Multi-Backend Inference                 Complete
-  5       Isolated and Statistical Benchmarking   In Progress
-  6       Webcam and RTSP Detection               Planned
-  7       Quantization and CPU Optimization       Planned
-  8       Visualization and Research Analysis     Planned
-
 ### Phase 1: Environment and Architecture
 
 -   [x] Project structure
