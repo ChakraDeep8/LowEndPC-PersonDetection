@@ -430,6 +430,7 @@ backend followed by statistical aggregation**.
 
 ## Current Experimental Snapshot
 
+``` text
 A controlled four-backend run on the reference i3-4150 system produced:
 
   Backend              Inference   Total Latency         FPS   Detections
@@ -454,7 +455,7 @@ executions. Formal conclusions will use repeated isolated trials and
 statistical aggregation.
 
 ------------------------------------------------------------------------
-
+```
 ## Logged Benchmark Metrics
 
 The CSV benchmark schema records:
