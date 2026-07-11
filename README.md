@@ -271,7 +271,7 @@ LowEndPC-PersonDetection/
 ------------------------------------------------------------------------
 
 ## Supported Backends
-
+``` text
   Backend        Model Format      Device   Status
   -------------- ----------------- -------- -------------
   PyTorch        `.pt`             CPU      Implemented
@@ -283,7 +283,7 @@ The optimized runtimes use the shared preprocessing and postprocessing
 pipeline to reduce backend-specific processing differences.
 
 ------------------------------------------------------------------------
-
+```
 ## Backend Validation
 
 A backend is not accepted only because the model loads or returns the
