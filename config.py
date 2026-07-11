@@ -98,7 +98,7 @@ ONNX = "onnx"
 OPENVINO = "openvino"
 OPENCV = "opencv"
 
-ENGINE = OPENVINO
+ENGINE = PYTORCH
 
 # ==========================
 # Time
