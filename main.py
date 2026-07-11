@@ -27,6 +27,7 @@ from benchmark.benchmark_runner import BenchmarkRunner
 from detectors.pytorch_detector import PyTorchDetector
 from detectors.onnx_detector import ONNXDetector
 from detectors.openvino_detector import OpenVINODetector
+from detectors.opencv_detector import OpenCVDetector
 
 import config
 
@@ -47,6 +48,10 @@ def create_detector(engine):
     if engine == config.OPENVINO:
 
         return OpenVINODetector()
+    
+    if engine == config.OPENCV:
+
+        return OpenCVDetector()
 
     raise ValueError(
         f"Unsupported engine: {engine}"
@@ -77,7 +82,12 @@ def run_benchmark():
             config.OPENVINO,
             "OpenVINO FP32 Baseline"
         )
+        ,
 
+        (
+            config.OPENCV,
+            "OpenCV DNN FP32 Baseline"
+        )
     ]
 
     for engine, notes in backends:
@@ -126,13 +136,26 @@ def run_validation():
 
     runner.validate(
 
-        reference_detector=ONNXDetector(),
+    reference_detector=ONNXDetector(),
 
-        target_detector=OpenVINODetector(),
+    target_detector=OpenCVDetector(),
 
-        image_path=config.INPUT_IMAGE
+    image_path=config.INPUT_IMAGE
 
-    )
+)
+
+#     runner.validate(
+
+#         reference_detector=ONNXDetector(),
+
+#         target_detector=OpenVINODetector(),
+
+#         image_path=config.INPUT_IMAGE
+
+#     )
+
+
+        
 
 
 # --------------------------------------------------
@@ -147,6 +170,7 @@ def main():
     elif config.RUN_MODE == config.VALIDATION:
 
         run_validation()
+        
 
     else:
 
