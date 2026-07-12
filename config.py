@@ -24,6 +24,7 @@ OUTPUT_IMAGES = RESULTS / "images"
 CSV = RESULTS / "csv"
 LOGS = RESULTS / "logs"
 BENCHMARK_STAT = RESULTS / "benchmark_stat"
+BENCHMARK_STAT_CSV = BENCHMARK_STAT / "csv"
 
 # ==========================
 # Input / Output
@@ -69,8 +70,8 @@ DEVICE = "cpu"
 # ==========================
 
 WARMUP_RUNS = 3
-BENCHMARK_RUNS = 10
-ISOLATED_TRIALS = 5
+BENCHMARK_RUNS = 30
+ISOLATED_TRIALS = 1
 
 # ==========================
 # Input Mode
@@ -80,7 +81,7 @@ IMAGE = "image"
 WEBCAM = "webcam"
 RTSP = "rtsp"
 
-INPUT_MODE = IMAGE
+INPUT_MODE = WEBCAM
 
 
 # ==========================
@@ -118,6 +119,7 @@ OPENVINO = "openvino"
 OPENCV = "opencv"
 
 ENGINE = PYTORCH
+FRAME_ENGINE = OPENVINO
 
 # ==========================
 # Time
@@ -134,5 +136,16 @@ TIMESTAMP_FORMAT = "%d-%m-%Y %H:%M:%S"
 
 BENCHMARK = "benchmark"
 VALIDATION = "validation"
+FRAME_SOURCE = "frame_source"
 
-RUN_MODE = BENCHMARK
+RUN_MODE = FRAME_SOURCE
+
+for directory in [
+    RESULTS,
+    OUTPUT_IMAGES,
+    CSV,
+    LOGS,
+    BENCHMARK_STAT,
+    BENCHMARK_STAT_CSV,
+]:
+    directory.mkdir(parents=True, exist_ok=True)

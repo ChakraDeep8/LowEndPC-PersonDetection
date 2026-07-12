@@ -26,9 +26,10 @@ Isolated Backend Runner
 import argparse
 import subprocess
 import sys
-
+import cv2
 from benchmark.benchmark_runner import BenchmarkRunner
-
+from pipeline.frame_source import FrameSource
+from pipeline.frame_processor import FrameProcessor
 import config
 
 
@@ -74,6 +75,213 @@ def create_detector(engine):
 
 # --------------------------------------------------
 
+def create_frame_source():
+    """
+    Create the configured frame source.
+    """
+
+    return FrameSource(
+        input_mode=config.INPUT_MODE,
+        image_path=config.INPUT_IMAGE,
+        webcam_index=config.WEBCAM_INDEX,
+        rtsp_url=config.RTSP_URL,
+    )
+
+
+# --------------------------------------------------
+
+def run_frame_source():
+    """
+    Run the configured frame source.
+
+    This execution path validates unified frame
+    acquisition independently from benchmarking.
+    """
+
+    print("\n" + "=" * 60)
+    print("Frame Source")
+    print("=" * 60)
+
+    print(
+        f"\nInput Mode : {config.INPUT_MODE}"
+    )
+
+    frame_count = 0
+
+    with create_frame_source() as source:
+
+        while True:
+
+            success, frame = source.read()
+
+            if not success:
+                break
+
+            frame_count += 1
+
+            height, width = frame.shape[:2]
+
+            print(
+                f"Frame {frame_count} : "
+                f"{width}x{height}"
+            )
+
+    print(
+        f"\nFrames Read : {frame_count}"
+    )
+
+    print("=" * 60)
+
+def run_frame_source():
+    """
+    Run the configured shared frame pipeline.
+    """
+
+    print("\n" + "=" * 60)
+    print("Shared Frame Processing Pipeline")
+    print("=" * 60)
+
+    print(
+        f"\nInput Mode : {config.INPUT_MODE}"
+    )
+
+    print(
+        f"Backend    : {config.FRAME_ENGINE}"
+    )
+
+    detector = create_detector(
+        config.FRAME_ENGINE
+    )
+
+    processor = FrameProcessor(
+        detector
+    )
+
+    frame_count = 0
+
+    last_result = None
+
+    with create_frame_source() as source:
+
+        while True:
+
+            success, frame = source.read()
+
+            if not success:
+                break
+
+            result = processor.process(
+                frame
+            )
+            last_result = result
+            frame_count += 1
+
+            annotated_frame = result[
+                "annotated_frame"
+            ]
+
+            if config.INPUT_MODE == config.IMAGE:
+
+                timings = result["timings"]
+
+                print(
+                    f"\nFrame       : "
+                    f"{result['frame_id']}"
+                )
+
+                print(
+                    f"Persons     : "
+                    f"{result['persons']}"
+                )
+
+                print(
+                    f"Preprocess  : "
+                    f"{timings['preprocess_ms']:.3f} ms"
+                )
+
+                print(
+                    f"Inference   : "
+                    f"{timings['inference_ms']:.3f} ms"
+                )
+
+                print(
+                    f"Postprocess : "
+                    f"{timings['postprocess_ms']:.3f} ms"
+                )
+
+                print(
+                    f"Draw        : "
+                    f"{timings['draw_ms']:.3f} ms"
+                )
+
+            if config.INPUT_MODE == config.WEBCAM:
+
+                cv2.putText(
+                    annotated_frame,
+                    (
+                        "Persons: "
+                        f"{result['persons']}"
+                    ),
+                    (20, 35),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.8,
+                    (0, 255, 0),
+                    2,
+                )
+
+                cv2.putText(
+                    annotated_frame,
+                    (
+                        "FPS: "
+                        f"{result['frame_fps']:.2f}"
+                    ),
+                    (20, 70),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.8,
+                    (0, 255, 0),
+                    2,
+                )
+
+                cv2.imshow(
+                    "LowEndPC Person Detection",
+                    annotated_frame,
+                )
+
+                key = cv2.waitKey(1) & 0xFF
+
+                if key == ord("q"):
+
+                    print(
+                        "\nWebcam termination "
+                        "requested."
+                    )
+
+                    break
+
+    if config.INPUT_MODE == config.WEBCAM:
+
+        cv2.destroyAllWindows()
+
+    print("\n" + "=" * 60)
+
+    print(
+        f"Frames Processed : {frame_count}"
+    )
+
+    if last_result is not None:
+
+        print(
+            f"Average FPS      : "
+            f"{last_result['average_fps']:.2f}"
+        )
+
+    print(
+        "Shared Frame Pipeline Completed"
+    )
+
+    print("=" * 60)
+
+# --------------------------------------------------
 
 def get_benchmark_notes(engine):
     """
@@ -404,6 +612,10 @@ def main():
     elif config.RUN_MODE == config.VALIDATION:
 
         run_validation()
+
+    elif config.RUN_MODE == config.FRAME_SOURCE:
+
+        run_frame_source()
 
     else:
 
