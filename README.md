@@ -437,7 +437,7 @@ A controlled four-backend run on the reference i3-4150 system produced:
   -------------- --------------- --------------- ----------- ------------
   PyTorch             104.408 ms      112.350 ms        8.90           16
   ONNX Runtime         88.733 ms      101.273 ms        9.87           18
-  OpenVINO         **74.301 ms**   **87.139 ms**   **11.48**           18
+  OpenVINO             74.301 ms       87.139 ms       11.48           18
   OpenCV DNN          172.015 ms      184.100 ms        5.43           18
 
 An initial isolated-process run reported:
@@ -447,9 +447,9 @@ An initial isolated-process run reported:
   PyTorch               811.53 MB
   ONNX Runtime          708.08 MB
   OpenVINO              692.40 MB
-  OpenCV DNN        **638.42 MB**
+  OpenCV DNN            638.42 MB
 
-These values are **experimental snapshots, not final backend rankings**.
+These values are experimental snapshots, not final backend rankings.
 Significant latency variance has been observed across independent
 executions. Formal conclusions will use repeated isolated trials and
 statistical aggregation.

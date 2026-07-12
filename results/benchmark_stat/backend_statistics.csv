@@ -1,0 +1,5 @@
+Engine,Trials,Inference Mean(ms),Inference Median(ms),Inference Std(ms),Inference Min(ms),Inference Max(ms),Inference CV(%),Total Mean(ms),FPS Mean,Process Memory Mean(MB)
+OpenVINO,6,157.374,153.251,52.765,71.395,233.906,33.53,178.019,6.338,691.61
+PyTorch,5,363.362,376.126,24.318,329.043,387.424,6.69,376.152,2.668,813.58
+ONNX Runtime,5,178.614,167.122,19.656,161.985,206.16,11.0,200.838,5.02,707.714
+OpenCV DNN,5,167.736,170.634,36.957,127.271,216.878,22.03,185.883,5.59,637.99

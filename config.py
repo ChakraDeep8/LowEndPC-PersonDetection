@@ -23,7 +23,7 @@ RESULTS = ROOT / "results"
 OUTPUT_IMAGES = RESULTS / "images"
 CSV = RESULTS / "csv"
 LOGS = RESULTS / "logs"
-
+BENCHMARK_STAT = RESULTS / "benchmark_stat"
 
 # ==========================
 # Input / Output

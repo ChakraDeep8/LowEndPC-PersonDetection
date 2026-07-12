@@ -102,7 +102,7 @@ def get_benchmark_notes(engine):
 # --------------------------------------------------
 
 
-def run_single_benchmark(engine):
+def run_single_benchmark(engine, trial=None):
     """
     Run one backend benchmark in the current process.
     """
@@ -112,6 +112,12 @@ def run_single_benchmark(engine):
     print(
         f"Isolated Benchmark Backend : {engine}"
     )
+
+    if trial is not None:
+
+        print(
+            f"Isolated Trial             : {trial}"
+        )
 
     print("=" * 60 + "\n")
 
@@ -127,9 +133,19 @@ def run_single_benchmark(engine):
         config.INPUT_IMAGE
     )
 
+    notes = get_benchmark_notes(
+        engine
+    )
+
+    if trial is not None:
+
+        notes = (
+            f"{notes} | Trial {trial}"
+        )
+
     report = runner.benchmark(
         config.INPUT_IMAGE,
-        notes=get_benchmark_notes(engine)
+        notes=notes
     )
 
     runner.print_report(
@@ -142,7 +158,11 @@ def run_single_benchmark(engine):
 
 def run_isolated_benchmarks():
     """
-    Run every backend in an independent Python process.
+    Run repeated isolated benchmark trials.
+
+    Every backend trial executes inside a fresh Python
+    process to prevent runtime and process-memory
+    contamination between benchmark experiments.
     """
 
     backends = [
@@ -154,53 +174,113 @@ def run_isolated_benchmarks():
 
     ]
 
+    total_trials = (
+        len(backends)
+        * config.ISOLATED_TRIALS
+    )
+
+    completed_trials = 0
+
     print("\n" + "=" * 60)
-    print("Isolated Backend Benchmark")
+    print("Repeated Isolated Backend Benchmark")
     print("=" * 60)
+
+    print(
+        f"\nBackends          : {len(backends)}"
+    )
+
+    print(
+        f"Trials Per Backend: "
+        f"{config.ISOLATED_TRIALS}"
+    )
+
+    print(
+        f"Total Processes   : {total_trials}"
+    )
 
     for engine in backends:
 
+        print("\n" + "=" * 60)
+
         print(
-            f"\nStarting isolated process: {engine}"
+            f"Backend : {engine}"
         )
 
-        print("-" * 60)
+        print("=" * 60)
 
-        command = [
+        for trial in range(
+            1,
+            config.ISOLATED_TRIALS + 1
+        ):
 
-            sys.executable,
+            print(
+                f"\nStarting Trial "
+                f"{trial}/"
+                f"{config.ISOLATED_TRIALS}"
+            )
 
-            str(
-                config.ROOT /
-                "main.py"
-            ),
+            print("-" * 60)
 
-            "--engine",
+            command = [
 
-            engine
+                sys.executable,
 
-        ]
+                str(
+                    config.ROOT /
+                    "main.py"
+                ),
 
-        result = subprocess.run(
-            command,
-            cwd=str(config.ROOT)
-        )
+                "--engine",
 
-        if result.returncode != 0:
+                engine,
 
-            raise RuntimeError(
-                "Backend benchmark failed: "
-                f"{engine}"
+                "--trial",
+
+                str(trial)
+
+            ]
+
+            result = subprocess.run(
+                command,
+                cwd=str(config.ROOT)
+            )
+
+            if result.returncode != 0:
+
+                raise RuntimeError(
+                    "Backend benchmark failed: "
+                    f"{engine} | "
+                    f"Trial {trial}"
+                )
+
+            completed_trials += 1
+
+            print(
+                f"\nCompleted Trial "
+                f"{trial}/"
+                f"{config.ISOLATED_TRIALS}"
+            )
+
+            print(
+                f"Overall Progress : "
+                f"{completed_trials}/"
+                f"{total_trials}"
             )
 
         print(
-            f"\nCompleted isolated process: {engine}"
+            f"\nBackend completed: {engine}"
         )
 
     print("\n" + "=" * 60)
 
     print(
-        "All Isolated Benchmarks Completed"
+        "Repeated Isolated Benchmarks Completed"
+    )
+
+    print(
+        f"Successful Processes : "
+        f"{completed_trials}/"
+        f"{total_trials}"
     )
 
     print("=" * 60)
@@ -276,6 +356,20 @@ def parse_arguments():
 
     )
 
+    parser.add_argument(
+
+        "--trial",
+
+        type=int,
+
+        default=None,
+
+        help=(
+            "Isolated benchmark trial number."
+        )
+
+    )
+
     return parser.parse_args()
 
 
@@ -293,7 +387,8 @@ def main():
     if args.engine is not None:
 
         run_single_benchmark(
-            args.engine
+            args.engine,
+            args.trial
         )
 
         return
